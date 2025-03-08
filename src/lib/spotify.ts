@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CLIENT_ID = '53e1f4e1efd445baa97318152d948ed0';
-const REDIRECT_URI = 'http://localhost:3000';
+const REDIRECT_URI =
+  window.location.protocol === 'http'
+    ? 'http://localhost:3000'
+    : 'https://jackhugh.github.io/run/';
 
 const generateRandomString = (length: number) => {
   const possible =
