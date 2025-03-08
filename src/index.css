@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
-button {
+button:not(:disabled) {
   cursor: pointer;
 }
 

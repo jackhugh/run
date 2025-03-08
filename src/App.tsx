@@ -119,7 +119,8 @@ export const App = () => {
               </label>
             </div>
             <button
-              className='text-blue-500 font-bold flex items-center gap-2 py-1 px-8 rounded-full border-blue-500 border-2 hover:bg-blue-500 hover:text-white transition-colors self-end'
+              disabled={selectedTracks.length === 0}
+              className='text-blue-500 font-bold flex items-center gap-2 py-1 px-8 rounded-full border-blue-500 border-2 hover:bg-blue-500 hover:text-white transition-colors self-end disabled:text-gray-400 disabled:border-gray-400 disabled:hover:bg-white'
               onClick={() =>
                 createPlaylistWIthSongs(selectedTracks).then((res: any) => {
                   window.location.href = res.external_urls.spotify;
