@@ -37,7 +37,7 @@ export const App = () => {
     const code = searchParams.get('code');
     if (typeof code === 'string') {
       requestSpotifyAccessToken(code).then(() => {
-        window.location.href = '/';
+        window.location.search = '';
       });
     }
   }, []);
