@@ -49,7 +49,6 @@ export const App = () => {
       });
       return;
     }
-    console.log(2);
 
     if (!localStorage.getItem('access_token')) {
       requestSpotifyAuth();
