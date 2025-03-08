@@ -16,7 +16,6 @@ export const App = () => {
   const [timeGoal, setTimeGoal] = useState(120);
   const [tracks, setTracks] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const dropzone = useRef<HTMLDivElement>(null);
   const [selectedTracks, setSelectedTracks] = useLocalStorage<any[]>(
     'selected_tracks',
     []
@@ -69,7 +68,7 @@ export const App = () => {
       <div className='grid grid-cols-2 relative gap-10 h-full grid-rows-[100%]'>
         <div className='flex flex-col'>
           <div className='flex justify-between items-start'>
-            <div className='grid gap-y-2 grid-cols-[max-content_auto] *:grid-cols-subgrid *:col-[1/-1] *:grid grid-rows-fr *:gap-4 *:items-center'>
+            <div className='grid gap-y-2 grid-cols-[max-content_auto] *:grid-cols-subgrid *:col-[1/-1] *:grid *:gap-4 *:items-center auto-rows-[1fr]'>
               <label>
                 <span className='font-bold text-right'>Units</span>
                 <select
@@ -145,10 +144,7 @@ export const App = () => {
                 </div>
               ))}
             </div>
-            <div
-              className='absolute right-4 top-0 flex flex-col w-4/5'
-              ref={dropzone}
-            >
+            <div className='absolute right-4 top-0 flex flex-col w-4/5'>
               {selectedTracks.map((track, i) => (
                 <div
                   className='bg-white relative not-[:last-child]:border-b-2 border-gray-300 overflow-hidden'
