@@ -144,15 +144,18 @@ export const App = () => {
                 </div>
               ))}
             </div>
-            <div className='absolute right-4 top-0 flex flex-col w-4/5'>
+            <div className='absolute right-10 top-0 flex flex-col w-4/5'>
               {selectedTracks.map((track, i) => (
                 <div
-                  className='bg-white relative not-[:last-child]:border-b-2 border-gray-300 overflow-hidden'
+                  className='bg-white relative overflow-hidden'
                   key={track.ourId}
                   style={{
                     height: pxPerMinute * (track.duration_ms / 1000 / 60),
                   }}
                 >
+                  {i !== 0 && i !== selectedTracks.length && (
+                    <div className='h-0.5 bg-gray-200 absolute inset-0 w-full'></div>
+                  )}
                   {/* <div
                     className='absolute inset-0 w-full h-full'
                     style={{
