@@ -12,7 +12,7 @@ import { useDebounce, useLocalStorage } from '@uidotdev/usehooks';
 export const App = () => {
   const scaleDefault = 50;
   const [units, setUnits] = useState<'km' | 'mi'>('mi');
-  const [length, setLength] = useState(13);
+  const [length, setLength] = useState(13.1);
   const [timeGoal, setTimeGoal] = useState(120);
   const [tracks, setTracks] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,10 +58,8 @@ export const App = () => {
   const pxPerMinute = 50 * (scale / scaleDefault);
   const minsPerUnit = timeGoal / length;
 
-  const pace = timeGoal / length;
-  const paceDate = new Date(0, 0);
-  paceDate.setSeconds((pace / 60) * 60 * 60);
-  const paceStr = paceDate.toTimeString().slice(0, 8);
+  const paceDecimal = timeGoal / length;
+  const paceStr = minsToTimeString(paceDecimal);
 
   return (
     <div className='p-4 h-screen'>
@@ -134,15 +132,34 @@ export const App = () => {
 
           <div className='mt-10 relative h-full overflow-y-scroll rounded-xl'>
             <div className='flex flex-col'>
-              {Array.from({ length }).map((_, i) => (
-                <div
-                  key={i}
-                  className='odd:bg-green-100 even:bg-green-50 font-bold text-xl p-2'
-                  style={{ height: minsPerUnit * pxPerMinute }}
-                >
-                  {i + 1} {units}
-                </div>
-              ))}
+              {Array.from({ length: Math.ceil(length) }).map((_, i) => {
+                const isLast = i + 1 === Math.ceil(length);
+
+                const distance = isLast
+                  ? Number.isInteger(length)
+                    ? 1
+                    : length - Math.floor(length)
+                  : 1;
+
+                console.log(distance);
+
+                return (
+                  <div
+                    key={i}
+                    className='odd:bg-green-100 even:bg-green-50 p-2 flex flex-col'
+                    style={{ height: minsPerUnit * pxPerMinute * distance }}
+                  >
+                    <div className='font-bold text-xl mt-auto'>
+                      {isLast ? length : i + 1} {units}
+                    </div>
+                    <div>
+                      {minsToTimeString(
+                        isLast ? timeGoal : (i + 1) * paceDecimal
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <div className='absolute right-10 top-0 flex flex-col w-4/5'>
               {selectedTracks.map((track, i) => (
@@ -168,7 +185,7 @@ export const App = () => {
                   <div className='flex items-center gap-2 p-2 relative h-full'>
                     <div className='flex flex-col gap-2'>
                       <button
-                        className='text-blue-500'
+                        className='text-blue-500 text-2xl'
                         onClick={() =>
                           setSelectedTracks((prev) => [
                             ...moveItem(prev, i, 'backward'),
@@ -178,7 +195,7 @@ export const App = () => {
                         ⬆︎
                       </button>
                       <button
-                        className='text-blue-500'
+                        className='text-blue-500 text-2xl'
                         onClick={() =>
                           setSelectedTracks((prev) => [
                             ...moveItem(prev, i, 'forward'),
@@ -204,9 +221,9 @@ export const App = () => {
                         newArr.splice(i, 1);
                         setSelectedTracks(newArr);
                       }}
-                      className='text-red-500 ml-auto self-start'
+                      className='text-red-500 text-5xl ml-auto self-start leading-0'
                     >
-                      ❌
+                      ⨯
                     </button>
                   </div>
                 </div>
@@ -282,3 +299,9 @@ function moveItem<T>(
 
   return result;
 }
+
+const minsToTimeString = (minutes: number) => {
+  const paceDate = new Date(0, 0);
+  paceDate.setSeconds((minutes / 60) * 60 * 60);
+  return paceDate.toTimeString().slice(0, 8);
+};
