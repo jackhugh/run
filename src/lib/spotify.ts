@@ -77,7 +77,7 @@ export const searchTracks = async (query: string) => {
   const res = await fetch(
     `https://api.spotify.com/v1/search?q=${encodeURIComponent(
       query
-    )}&type=track&market=GB`,
+    )}&type=track&market=GB&limit=50`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
@@ -156,7 +156,7 @@ export const createPlaylistWIthSongs = async (tracks: any[]) => {
 
 export const getTopTracks = async () => {
   const res = await fetch(
-    `https://api.spotify.com/v1/me/top/tracks?time_range=medium_term`,
+    `https://api.spotify.com/v1/me/top/tracks?time_range=medium_term&limit=50`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,

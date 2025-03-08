@@ -22,7 +22,7 @@ export const App = () => {
     []
   );
   const [scale, setScale] = useState(scaleDefault);
-  const debouncedQuery = useDebounce(searchQuery, 500);
+  const debouncedQuery = useDebounce(searchQuery, 200);
   useEffect(() => {
     if (!debouncedQuery) {
       getTopTracks().then((res) => setTracks(res.items));
@@ -60,12 +60,12 @@ export const App = () => {
   const minsPerUnit = timeGoal / length;
 
   return (
-    <div className='p-4'>
-      <div className='grid grid-cols-2 relative gap-10'>
+    <div className='p-4 h-screen'>
+      <div className='grid grid-cols-2 relative gap-10 h-full grid-rows-[100%]'>
         <div className='flex flex-col'>
           <div className='flex justify-between items-start'>
-            <div>
-              <label className='flex gap-4 items-center'>
+            <div className='grid gap-y-2 grid-cols-[max-content_auto] *:grid-cols-subgrid *:col-[1/-1] *:grid **:h-full grid-rows-fr  *:gap-4 *:items-start'>
+              <label>
                 <span className='font-bold'>Units</span>
                 <select
                   value={units}
@@ -78,7 +78,7 @@ export const App = () => {
                 </select>
               </label>
 
-              <label className='flex gap-4 items-center'>
+              <label>
                 <span className='font-bold'>Length</span>
                 <input
                   type='number'
@@ -87,7 +87,7 @@ export const App = () => {
                 />
               </label>
 
-              <label className='flex gap-4 items-center'>
+              <label>
                 <span className='font-bold'>Goal Time</span>
                 <input
                   type='number'
@@ -96,7 +96,7 @@ export const App = () => {
                 />
               </label>
 
-              <label className='flex gap-4 items-center'>
+              <label>
                 <span className='font-bold'>Scale</span>
                 <input
                   type='range'
@@ -108,23 +108,23 @@ export const App = () => {
               </label>
             </div>
             <button
-              className='text-blue-500 font-bold'
+              className='text-blue-500 font-bold flex items-center gap-2'
               onClick={() =>
                 createPlaylistWIthSongs(selectedTracks).then((res: any) => {
                   window.location.href = res.external_urls.spotify;
                 })
               }
             >
-              Create playlist
+              Create playlist <span className='text-3xl'>🏁</span>
             </button>
           </div>
 
-          <div className='mt-10 relative'>
-            <div className='flex flex-col '>
+          <div className='mt-10 relative h-full overflow-y-scroll rounded-xl'>
+            <div className='flex flex-col'>
               {Array.from({ length }).map((_, i) => (
                 <div
                   key={i}
-                  className='odd:bg-green-100 even:bg-green-50 font-bold text-xl p-2 first:rounded-t-xl last:rounded-b-xl'
+                  className='odd:bg-green-100 even:bg-green-50 font-bold text-xl p-2'
                   style={{ height: minsPerUnit * pxPerMinute }}
                 >
                   {i + 1} {units}
@@ -181,7 +181,7 @@ export const App = () => {
                       className='aspect-square rounded-[10%] max-h-20 h-full'
                     />
 
-                    <div>
+                    <div className='font-medium'>
                       {track.artists[0]?.name} - {track.name}
                     </div>
 
@@ -202,12 +202,12 @@ export const App = () => {
           </div>
         </div>
 
-        <div className='flex flex-col sticky top-5 self-start'>
+        <div className='flex flex-col'>
           <div className='flex items-center'>
             <label className='flex gap-4 items-start w-full'>
               <span className='font-bold shrink-0'>Search for a song</span>
               <input
-                className='p-2 rounded-xl grow border-2 border-gray-300'
+                className='grow'
                 type='text'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.currentTarget.value)}
@@ -216,7 +216,7 @@ export const App = () => {
             </label>
           </div>
 
-          <div className='flex flex-col gap-2 mt-4'>
+          <div className='flex flex-col gap-2 mt-4 h-full overflow-y-scroll'>
             {tracks.map((track) => (
               <button
                 key={track.id}

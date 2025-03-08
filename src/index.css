@@ -4,3 +4,8 @@
 button {
   cursor: pointer;
 }
+
+input,
+select {
+  @apply px-2 py-1 rounded-xl border-2 border-gray-300;
+}
