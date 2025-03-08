@@ -3,6 +3,7 @@
 
 button:not(:disabled) {
   cursor: pointer;
+  text-align: left;
 }
 
 input,

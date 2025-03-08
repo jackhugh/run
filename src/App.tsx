@@ -63,7 +63,7 @@ export const App = () => {
 
   return (
     <div className='p-4 h-screen'>
-      <div className='grid grid-cols-2 relative gap-10 h-full grid-rows-[100%]'>
+      <div className='grid grid-cols-[4fr_3fr] relative gap-10 h-full grid-rows-[100%]'>
         <div className='flex flex-col'>
           <div className='flex justify-between items-start'>
             <div className='grid gap-y-2 grid-cols-[max-content_auto] *:grid-cols-subgrid *:col-[1/-1] *:grid *:gap-4 *:items-center auto-rows-[1fr]'>
