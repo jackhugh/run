@@ -11,7 +11,7 @@ import { useDebounce, useLocalStorage } from '@uidotdev/usehooks';
 
 export const App = () => {
   const scaleDefault = 50;
-  const [units, setUnits] = useLocalStorage<'km' | 'mi'>('mi');
+  const [units, setUnits] = useLocalStorage<'km' | 'mi'>('units', 'mi');
   const [length, setLength] = useLocalStorage('length', 13.1);
   const [timeGoal, setTimeGoal] = useLocalStorage('time_goal_mins', 120);
   const [tracks, setTracks] = useState<any[]>([]);
