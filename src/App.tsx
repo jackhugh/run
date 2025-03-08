@@ -59,15 +59,21 @@ export const App = () => {
   const pxPerMinute = 50 * (scale / scaleDefault);
   const minsPerUnit = timeGoal / length;
 
+  const pace = timeGoal / length;
+  const paceDate = new Date(0, 0);
+  paceDate.setSeconds((pace / 60) * 60 * 60);
+  const paceStr = paceDate.toTimeString().slice(3, 8);
+
   return (
     <div className='p-4 h-screen'>
       <div className='grid grid-cols-2 relative gap-10 h-full grid-rows-[100%]'>
         <div className='flex flex-col'>
           <div className='flex justify-between items-start'>
-            <div className='grid gap-y-2 grid-cols-[max-content_auto] *:grid-cols-subgrid *:col-[1/-1] *:grid **:h-full grid-rows-fr  *:gap-4 *:items-start'>
+            <div className='grid gap-y-2 grid-cols-[max-content_auto] *:grid-cols-subgrid *:col-[1/-1] *:grid grid-rows-fr *:gap-4 *:items-center'>
               <label>
-                <span className='font-bold'>Units</span>
+                <span className='font-bold text-right'>Units</span>
                 <select
+                  className='h-full'
                   value={units}
                   onChange={(e) =>
                     setUnits(e.currentTarget.value as 'km' | 'mi')
@@ -79,8 +85,9 @@ export const App = () => {
               </label>
 
               <label>
-                <span className='font-bold'>Length</span>
+                <span className='font-bold text-right'>Length</span>
                 <input
+                  className='h-full'
                   type='number'
                   value={length}
                   onChange={(e) => setLength(e.currentTarget.valueAsNumber)}
@@ -88,17 +95,24 @@ export const App = () => {
               </label>
 
               <label>
-                <span className='font-bold'>Goal Time</span>
+                <span className='font-bold text-right'>Goal Time</span>
                 <input
+                  className='h-full'
                   type='number'
                   value={timeGoal}
                   onChange={(e) => setTimeGoal(e.currentTarget.valueAsNumber)}
                 />
               </label>
 
+              <div>
+                <span className='font-bold text-right'>Pace/{units}</span>
+                <span>{paceStr}</span>
+              </div>
+
               <label>
-                <span className='font-bold'>Scale</span>
+                <span className='font-bold text-right'>Scale</span>
                 <input
+                  className='h-full'
                   type='range'
                   value={scale}
                   min={5}
@@ -108,7 +122,7 @@ export const App = () => {
               </label>
             </div>
             <button
-              className='text-blue-500 font-bold flex items-center gap-2'
+              className='text-blue-500 font-bold flex items-center gap-2 py-1 px-8 rounded-full border-blue-500 border-2 hover:bg-blue-500 hover:text-white transition-colors self-end'
               onClick={() =>
                 createPlaylistWIthSongs(selectedTracks).then((res: any) => {
                   window.location.href = res.external_urls.spotify;
@@ -204,7 +218,7 @@ export const App = () => {
 
         <div className='flex flex-col'>
           <div className='flex items-center'>
-            <label className='flex gap-4 items-start w-full'>
+            <label className='flex gap-4 items-center w-full'>
               <span className='font-bold shrink-0'>Search for a song</span>
               <input
                 className='grow'
