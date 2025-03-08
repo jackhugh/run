@@ -2,12 +2,15 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   createPlaylistWIthSongs,
+  getTopTracks,
   requestSpotifyAccessToken,
+  requestSpotifyAuth,
   searchTracks,
 } from './lib/spotify';
-import { useLocalStorage, useThrottle } from '@uidotdev/usehooks';
+import { useDebounce, useLocalStorage } from '@uidotdev/usehooks';
 
 export const App = () => {
+  const scaleDefault = 50;
   const [units, setUnits] = useState<'km' | 'mi'>('mi');
   const [length, setLength] = useState(13);
   const [timeGoal, setTimeGoal] = useState(120);
@@ -18,13 +21,15 @@ export const App = () => {
     'selected_tracks',
     []
   );
-  const throttledQuery = useThrottle(searchQuery, 500);
+  const [scale, setScale] = useState(scaleDefault);
+  const debouncedQuery = useDebounce(searchQuery, 500);
   useEffect(() => {
-    if (!throttledQuery) {
+    if (!debouncedQuery) {
+      getTopTracks().then((res) => setTracks(res.items));
       return;
     }
     search();
-  }, [throttledQuery]);
+  }, [debouncedQuery]);
 
   const hasInit = useRef(false);
   useEffect(() => {
@@ -40,6 +45,10 @@ export const App = () => {
         window.location.search = '';
       });
     }
+
+    if (!localStorage.getItem('access_token')) {
+      requestSpotifyAuth();
+    }
   }, []);
 
   const search = async () => {
@@ -47,40 +56,8 @@ export const App = () => {
     setTracks(res.tracks.items);
   };
 
-  const pxPerMinute = 50;
+  const pxPerMinute = 50 * (scale / scaleDefault);
   const minsPerUnit = timeGoal / length;
-
-  // const onDragEnd = (e: React.SyntheticEvent<HTMLDivElement>, track: any) => {
-  //   const dropzoneElem = dropzone.current;
-  //   if (!dropzoneElem) {
-  //     return;
-  //   }
-  //   const rect = dropzoneElem.getBoundingClientRect();
-  //   const top = rect.y;
-  //   const clientY = e.clientY;
-  //   const height = clientY - top;
-
-  //   const selectedTime = height / pxPerMinute;
-
-  //   let pos = 0;
-  //   let totalDuration = 0;
-
-  //   for (let i = 0; i < selectedTracks.length; i++) {
-  //     const duration = track.duration_ms / 1000 / 60;
-  //     totalDuration += duration;
-
-  //     if (totalDuration > selectedTime) {
-  //       pos = i - 1;
-  //       break;
-  //     }
-  //   }
-  //   // console.log(height, pos);
-  //   setSelectedTracks((prev) => {
-  //     const newArr = [...prev];
-  //     newArr.splice(pos, 0, track);
-  //     return newArr;
-  //   });
-  // };
 
   return (
     <div className='p-4'>
@@ -88,7 +65,7 @@ export const App = () => {
         <div className='flex flex-col'>
           <div className='flex justify-between items-start'>
             <div>
-              <label className='flex gap-4'>
+              <label className='flex gap-4 items-center'>
                 <span className='font-bold'>Units</span>
                 <select
                   value={units}
@@ -101,100 +78,123 @@ export const App = () => {
                 </select>
               </label>
 
-              <label className='flex gap-4'>
+              <label className='flex gap-4 items-center'>
                 <span className='font-bold'>Length</span>
                 <input
                   type='number'
                   value={length}
-                  onChange={(e) => setLength(Number(e.currentTarget.value))}
+                  onChange={(e) => setLength(e.currentTarget.valueAsNumber)}
                 />
               </label>
 
-              <label className='flex gap-4'>
+              <label className='flex gap-4 items-center'>
                 <span className='font-bold'>Goal Time</span>
                 <input
                   type='number'
                   value={timeGoal}
-                  onChange={(e) => setTimeGoal(Number(e.currentTarget.value))}
+                  onChange={(e) => setTimeGoal(e.currentTarget.valueAsNumber)}
+                />
+              </label>
+
+              <label className='flex gap-4 items-center'>
+                <span className='font-bold'>Scale</span>
+                <input
+                  type='range'
+                  value={scale}
+                  min={5}
+                  max={100}
+                  onChange={(e) => setScale(e.currentTarget.valueAsNumber)}
                 />
               </label>
             </div>
             <button
               className='text-blue-500 font-bold'
               onClick={() =>
-                createPlaylistWIthSongs(selectedTracks).then(() =>
-                  alert('Playlist created')
-                )
+                createPlaylistWIthSongs(selectedTracks).then((res: any) => {
+                  window.location.href = res.external_urls.spotify;
+                })
               }
             >
               Create playlist
             </button>
           </div>
 
-          <div className='flex flex-col mt-10 relative'>
-            {Array.from({ length }).map((_, i) => (
-              <div
-                key={i}
-                className='border-t-2 border-green-500 font-bold text-xl'
-                style={{ height: minsPerUnit * pxPerMinute }}
-              >
-                {i + 1}
-                {units}
-              </div>
-            ))}
+          <div className='mt-10 relative'>
+            <div className='flex flex-col '>
+              {Array.from({ length }).map((_, i) => (
+                <div
+                  key={i}
+                  className='odd:bg-green-100 even:bg-green-50 font-bold text-xl p-2 first:rounded-t-xl last:rounded-b-xl'
+                  style={{ height: minsPerUnit * pxPerMinute }}
+                >
+                  {i + 1} {units}
+                </div>
+              ))}
+            </div>
             <div
-              className='absolute right-0 top-0 flex flex-col w-4/5'
+              className='absolute right-4 top-0 flex flex-col w-4/5'
               ref={dropzone}
             >
               {selectedTracks.map((track, i) => (
                 <div
+                  className='bg-white relative not-[:last-child]:border-b-2 border-gray-300 overflow-hidden'
                   key={track.ourId}
-                  className='border-t-2 last:border-b-2 border-gray-300'
                   style={{
                     height: pxPerMinute * (track.duration_ms / 1000 / 60),
                   }}
                 >
-                  <div className='flex items-start gap-2 w-full'>
+                  {/* <div
+                    className='absolute inset-0 w-full h-full'
+                    style={{
+                      backgroundImage: `url("${track.album.images[0]?.url}")`,
+                      backgroundPosition: 'center',
+                      filter: 'blur(20px) grayscale(50%)',
+                    }}
+                  /> */}
+
+                  <div className='flex items-center gap-2 p-2 relative h-full'>
+                    <div className='flex flex-col gap-2'>
+                      <button
+                        className='text-blue-500'
+                        onClick={() =>
+                          setSelectedTracks((prev) => [
+                            ...moveItem(prev, i, 'backward'),
+                          ])
+                        }
+                      >
+                        ⬆︎
+                      </button>
+                      <button
+                        className='text-blue-500'
+                        onClick={() =>
+                          setSelectedTracks((prev) => [
+                            ...moveItem(prev, i, 'forward'),
+                          ])
+                        }
+                      >
+                        ⬇︎
+                      </button>
+                    </div>
+
                     <img
                       src={track.album.images[0]?.url}
-                      width={100}
-                      height={100}
+                      className='aspect-square rounded-[10%] max-h-20 h-full'
                     />
-                    <div className='flex flex-col gap-2 w-full p-2'>
-                      <div className='flex gap-2 text-blue-500'>
-                        <button
-                          onClick={() =>
-                            setSelectedTracks((prev) => [
-                              ...moveItem(prev, i, 'backward'),
-                            ])
-                          }
-                        >
-                          ⬆︎
-                        </button>
-                        <button
-                          onClick={() =>
-                            setSelectedTracks((prev) => [
-                              ...moveItem(prev, i, 'forward'),
-                            ])
-                          }
-                        >
-                          ⬇︎
-                        </button>
-                        <button
-                          onClick={() => {
-                            const newArr = [...selectedTracks];
-                            newArr.splice(i, 1);
-                            setSelectedTracks(newArr);
-                          }}
-                          className='text-red-500 ml-auto'
-                        >
-                          ❌
-                        </button>
-                      </div>
-                      <div>
-                        {track.artists[0]?.name} - {track.name}
-                      </div>
+
+                    <div>
+                      {track.artists[0]?.name} - {track.name}
                     </div>
+
+                    <button
+                      onClick={() => {
+                        const newArr = [...selectedTracks];
+                        newArr.splice(i, 1);
+                        setSelectedTracks(newArr);
+                      }}
+                      className='text-red-500 ml-auto self-start'
+                    >
+                      ❌
+                    </button>
                   </div>
                 </div>
               ))}
@@ -202,12 +202,12 @@ export const App = () => {
           </div>
         </div>
 
-        <div className='flex flex-col sticky top-0 self-start'>
+        <div className='flex flex-col sticky top-5 self-start'>
           <div className='flex items-center'>
-            <label className='flex gap-4 items-center w-full'>
+            <label className='flex gap-4 items-start w-full'>
               <span className='font-bold shrink-0'>Search for a song</span>
               <input
-                className='p-2 rounded-xl grow'
+                className='p-2 rounded-xl grow border-2 border-gray-300'
                 type='text'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.currentTarget.value)}
@@ -222,7 +222,6 @@ export const App = () => {
                 key={track.id}
                 className='flex items-center gap-2'
                 draggable
-                // onDragEnd={(e) => onDragEnd(e, track)}
                 onClick={() =>
                   setSelectedTracks((prev) => [
                     ...prev,
@@ -230,7 +229,12 @@ export const App = () => {
                   ])
                 }
               >
-                <img src={track.album.images[0]?.url} width={40} height={40} />
+                <img
+                  src={track.album.images[0]?.url}
+                  width={40}
+                  height={40}
+                  className='rounded'
+                />
                 {track.artists[0]?.name} - {track.name}
               </button>
             ))}

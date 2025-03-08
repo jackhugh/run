@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const CLIENT_ID = '53e1f4e1efd445baa97318152d948ed0';
 const REDIRECT_URI =
-  window.location.protocol === 'http'
-    ? 'http://localhost:3000'
+  window.location.protocol === 'http:'
+    ? 'http://localhost:3000/run/'
     : 'https://jackhugh.github.io/run/';
 
 const generateRandomString = (length: number) => {
@@ -34,7 +34,6 @@ export const requestSpotifyAuth = async () => {
     'user-read-private user-read-email user-top-read playlist-modify-private';
   const authUrl = new URL('https://accounts.spotify.com/authorize');
 
-  // generated in the previous step
   window.localStorage.setItem('code_verifier', codeVerifier);
 
   const params = {
@@ -70,8 +69,6 @@ export const requestSpotifyAccessToken = async (code: string) => {
 
   const body = await fetch(url, payload);
   const response = await body.json();
-
-  console.log(response);
 
   localStorage.setItem('access_token', response.access_token);
 };
@@ -154,4 +151,22 @@ export const createPlaylistWIthSongs = async (tracks: any[]) => {
     await requestSpotifyAuth();
     return;
   }
+  return playlist;
+};
+
+export const getTopTracks = async () => {
+  const res = await fetch(
+    `https://api.spotify.com/v1/me/top/tracks?time_range=medium_term`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    }
+  );
+  if (res.status < 200 || res.status >= 400) {
+    await requestSpotifyAuth();
+    return;
+  }
+  const json = await res.json();
+  return json;
 };
