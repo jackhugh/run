@@ -142,8 +142,6 @@ export const App = () => {
                     : length - Math.floor(length)
                   : 1;
 
-                console.log(distance);
-
                 return (
                   <div
                     key={i}
