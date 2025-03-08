@@ -43,6 +43,7 @@ export const App = () => {
       requestSpotifyAccessToken(code).then(() => {
         window.location.search = '';
       });
+      return;
     }
 
     if (!localStorage.getItem('access_token')) {
