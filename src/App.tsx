@@ -23,6 +23,10 @@ export const App = () => {
   const [scale, setScale] = useLocalStorage('scale', scaleDefault);
   const debouncedQuery = useDebounce(searchQuery, 200);
   useEffect(() => {
+    if (!localStorage.getItem('access_token')) {
+      return;
+    }
+
     if (!debouncedQuery) {
       getTopTracks().then((res) => setTracks(res.items));
       return;
@@ -45,6 +49,7 @@ export const App = () => {
       });
       return;
     }
+    console.log(2);
 
     if (!localStorage.getItem('access_token')) {
       requestSpotifyAuth();
