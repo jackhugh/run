@@ -12,15 +12,15 @@ import { useDebounce, useLocalStorage } from '@uidotdev/usehooks';
 export const App = () => {
   const scaleDefault = 50;
   const [units, setUnits] = useState<'km' | 'mi'>('mi');
-  const [length, setLength] = useState(13.1);
-  const [timeGoal, setTimeGoal] = useState(120);
+  const [length, setLength] = useLocalStorage('length', 13.1);
+  const [timeGoal, setTimeGoal] = useLocalStorage('time_goal_mins', 120);
   const [tracks, setTracks] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTracks, setSelectedTracks] = useLocalStorage<any[]>(
     'selected_tracks',
     []
   );
-  const [scale, setScale] = useState(scaleDefault);
+  const [scale, setScale] = useLocalStorage('scale', scaleDefault);
   const debouncedQuery = useDebounce(searchQuery, 200);
   useEffect(() => {
     if (!debouncedQuery) {
