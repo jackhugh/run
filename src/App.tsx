@@ -62,7 +62,7 @@ export const App = () => {
   const pace = timeGoal / length;
   const paceDate = new Date(0, 0);
   paceDate.setSeconds((pace / 60) * 60 * 60);
-  const paceStr = paceDate.toTimeString().slice(3, 8);
+  const paceStr = paceDate.toTimeString().slice(0, 8);
 
   return (
     <div className='p-4 h-screen'>
